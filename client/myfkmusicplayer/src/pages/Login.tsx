@@ -10,15 +10,15 @@ function Login() {
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials: "include",
             body: JSON.stringify({ email, password }),
         })
             .then((response) => response.json())
             .then((data) => {
-                if (data.token) {
-                    localStorage.setItem("token", data.token);
+                if (data.id && data.email) {
                     alert("Login successful!");
                 } else {
-                    alert("Login failed: " + data.message);
+                    alert("Login failed: " + data.error);
                 }
             })
             .catch((error) => {

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/conmefo/myfkmusicplayer/server/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -39,10 +41,14 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid request"})
 		return
 	}
-	user, token, err := h.userService.LoginUser(req.Email, req.Password)
+	user, accessCookie, refreshCookie, err := h.userService.LoginUser(req.Email, req.Password)
 	if err != nil {
 		c.JSON(401, gin.H{"error": "Invalid email or password"})
 		return
 	}
-	c.JSON(200, gin.H{"id": user.ID, "email": user.Email, "token": token})
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(accessCookie.Name, accessCookie.Value, accessCookie.MaxAge, accessCookie.Path, accessCookie.Domain, accessCookie.Secure, accessCookie.HttpOnly)
+	c.SetCookie(refreshCookie.Name, refreshCookie.Value, refreshCookie.MaxAge, refreshCookie.Path, refreshCookie.Domain, refreshCookie.Secure, refreshCookie.HttpOnly)
+	c.JSON(200, gin.H{"id": user.ID, "email": user.Email})
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"net/http"
 	"os"
 	"time"
 
@@ -13,13 +14,13 @@ import (
 )
 
 type UserService struct {
-	userRepo   *repo.UserRepository
-	sercretKey []byte
+	userRepo  *repo.UserRepository
+	secretKey []byte
 }
 
 func NewUserService(userRepo *repo.UserRepository) *UserService {
 	godotenv.Load()
-	return &UserService{userRepo: userRepo, sercretKey: []byte(os.Getenv("JWT_SECRET"))}
+	return &UserService{userRepo: userRepo, secretKey: []byte(os.Getenv("JWT_SECRET"))}
 }
 
 func (s *UserService) RegisterUser(email, passwordHash string) (*model.User, error) {
@@ -41,23 +42,24 @@ func (s *UserService) RegisterUser(email, passwordHash string) (*model.User, err
 	}, nil
 }
 
-func (s *UserService) LoginUser(email, password string) (*model.User, string, error) {
+func (s *UserService) LoginUser(email, password string) (*model.User, http.Cookie, http.Cookie, error) {
 	user, err := s.userRepo.GetUserByEmail(email)
 	if err != nil {
-		return nil, "", err
+		return nil, http.Cookie{}, http.Cookie{}, err
 	}
 
 	if !CheckPasswordHash(password, user.PasswordHash) {
-		return nil, "", errors.New("invalid email or password")
+		return nil, http.Cookie{}, http.Cookie{}, errors.New("invalid email or password")
 	}
 
-	token, err := s.createToken(user.Email)
+	accessToken, err := s.createToken(user.Email, time.Now().Add(time.Minute*15))
+	refreshToken, err := s.createToken(user.Email, time.Now().Add(time.Hour*24))
 
 	if err != nil {
-		return nil, "", err
+		return nil, http.Cookie{}, http.Cookie{}, err
 	}
 
-	return user, token, nil
+	return user, s.createCookie("access_token", accessToken), s.createCookie("refresh_token", refreshToken), nil
 }
 
 func HashPassword(password string) (string, error) {
@@ -70,17 +72,24 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func (s *UserService) createToken(userEmail string) (string, error) {
+func (s *UserService) createToken(userEmail string, expireTime time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"userEmail": userEmail,
-			"exp":       time.Now().Add(time.Hour * 24).Unix(),
+			"exp":       expireTime.Unix(),
 		})
 
-	tokenString, err := token.SignedString(s.sercretKey)
+	tokenString, err := token.SignedString(s.secretKey)
 	if err != nil {
 		return "", err
 	}
 
 	return tokenString, nil
+}
+
+func (s *UserService) createCookie(cookieType, token string) http.Cookie {
+	return http.Cookie{
+		Name:  cookieType,
+		Value: token,
+	}
 }
