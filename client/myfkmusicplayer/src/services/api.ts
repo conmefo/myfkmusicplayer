@@ -1,5 +1,13 @@
 import { refreshToken } from "./authService";
 
+// export async function apiFetch(
+//     endpoint: string,
+//     options: RequestInit = {}
+// ): Promise<any> {
+//     const res = await fetch(`http://localhost:8080${endpoint}`, options);
+//     return res.json();
+// }
+
 export async function apiFetch(
     endpoint: string,
     options: RequestInit = {}

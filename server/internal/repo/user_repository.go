@@ -2,6 +2,7 @@ package repo
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/conmefo/myfkmusicplayer/server/internal/model"
 )
@@ -34,4 +35,20 @@ func (r *UserRepository) GetUserByEmail(email string) (*model.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *UserRepository) SaveRefreshToken(userEmail, refreshToken string, expiresAt time.Time) error {
+	_, err := r.db.Exec("UPDATE users SET refresh_token_hash = $1, refresh_token_expiration = $2 WHERE email = $3", refreshToken, expiresAt, userEmail)
+	return err
+}
+
+func (r *UserRepository) GetRefreshTokenByEmail(email string) (string, time.Time, error) {
+	row := r.db.QueryRow("SELECT refresh_token_hash, refresh_token_expiration FROM users WHERE email = $1", email)
+	var refreshToken string
+	var expiresAt time.Time
+	err := row.Scan(&refreshToken, &expiresAt)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	return refreshToken, expiresAt, nil
 }

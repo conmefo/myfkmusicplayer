@@ -1,19 +1,18 @@
 import { useState } from "react";
+import { apiFetch } from "../services/api";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     function submitForm() {
         console.log("Form submitted");
-        fetch("http://localhost:8080/users/login", {
+        apiFetch("/users/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify({ email, password }),
         })
-            .then((response) => response.json())
             .then((data) => {
                 if (data.id && data.email) {
                     alert("Login successful!");
@@ -35,7 +34,7 @@ function Login() {
                 </h1>
 
                 <input
-                    type="text"
+                    //   type="text"
                     placeholder="Username"
                     className="w-full p-2 mb-3 border rounded"
                     value={email}
@@ -43,7 +42,7 @@ function Login() {
                 />
 
                 <input
-                    type="password"
+                    //  type="password"
                     placeholder="Password"
                     className="w-full p-2 mb-4 border rounded"
                     value={password}
