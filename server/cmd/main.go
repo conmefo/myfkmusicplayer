@@ -17,7 +17,10 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
-	r := router.SetupRouter(userHandler)
+	searchService := service.NewSearchService()
+	searchHandler := handler.NewSearchHandler(searchService)
+	
+	r := router.SetupRouter(userHandler, searchHandler)
 
 	godotenv.Load()
 	port := os.Getenv("PORT")

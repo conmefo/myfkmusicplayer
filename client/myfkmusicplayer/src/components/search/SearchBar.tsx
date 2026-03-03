@@ -14,7 +14,7 @@ export default function SearchBar() {
     }, [query]);
 
     return (
-        <div className="w-full max-w-md mx-auto mt-5">
+        <div className="w-full mt-5">
             <input
                 type="text"
                 placeholder="Search"
