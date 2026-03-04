@@ -29,6 +29,7 @@ func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.Search
 
 	r.POST("/users/register", userHandler.RegisterUser)
 	r.POST("/users/login", userHandler.LoginUser)
+	r.POST("/users/refresh", userHandler.RefreshToken)
 
 	api := r.Group("/api")
 

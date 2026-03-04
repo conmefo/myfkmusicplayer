@@ -106,26 +106,26 @@ func (s *UserService) createCookie(cookieType, token string, expire time.Time) h
 	}
 }
 
-func (s *UserService) RefreshToken(userEmail, refreshToken string) (string, http.Cookie, error) {
+func (s *UserService) RefreshToken(userEmail, refreshToken string) (http.Cookie, error) {
 	storedHash, expiresAt, err := s.userRepo.GetRefreshTokenByEmail(userEmail)
 
 	if err != nil {
-		return "", http.Cookie{}, err
+		return http.Cookie{}, err
 	}
 
 	if time.Now().After(expiresAt) {
-		return "", http.Cookie{}, errors.New("refresh token expired")
+		return http.Cookie{}, errors.New("refresh token expired")
 	}
 
 	if !CheckHash(refreshToken, storedHash) {
-		return "", http.Cookie{}, errors.New("invalid refresh token")
+		return http.Cookie{}, errors.New("invalid refresh token")
 	}
 
 	newAccessToken, err := s.createToken(userEmail)
 
 	if err != nil {
-		return "", http.Cookie{}, err
+		return http.Cookie{}, err
 	}
 
-	return newAccessToken, s.createCookie("access_token", newAccessToken, time.Now().Add(AccessTokenExpiry)), nil
+	return s.createCookie("access_token", newAccessToken, time.Now().Add(AccessTokenExpiry)), nil
 }

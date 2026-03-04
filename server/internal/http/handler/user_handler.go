@@ -50,5 +50,27 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(accessCookie.Name, accessCookie.Value, accessCookie.MaxAge, accessCookie.Path, accessCookie.Domain, accessCookie.Secure, accessCookie.HttpOnly)
 	c.SetCookie(refreshCookie.Name, refreshCookie.Value, refreshCookie.MaxAge, refreshCookie.Path, refreshCookie.Domain, refreshCookie.Secure, refreshCookie.HttpOnly)
+	c.SetCookie("user_email", user.Email, 0, "/", "", false, false)
 	c.JSON(200, gin.H{"id": user.ID, "email": user.Email})
+}
+
+func (h *UserHandler) RefreshToken(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	useremail, err := c.Cookie("user_email")
+
+	if err != nil {
+		c.JSON(401, gin.H{"error": "Refresh token not found"})
+		return
+	}
+
+	accessCookie, err := h.userService.RefreshToken(useremail, refreshToken)
+
+	if err != nil {
+		c.JSON(401, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(accessCookie.Name, accessCookie.Value, accessCookie.MaxAge, accessCookie.Path, accessCookie.Domain, accessCookie.Secure, accessCookie.HttpOnly)
+	c.JSON(200, gin.H{"message": "Token refreshed"})
 }

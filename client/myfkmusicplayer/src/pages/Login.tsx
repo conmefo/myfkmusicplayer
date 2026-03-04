@@ -15,7 +15,6 @@ function Login() {
         })
             .then((data) => {
                 if (data.id && data.email) {
-                    alert("Login successful!");
                     window.location.href = "/";
                 } else {
                     alert("Login failed: " + data.error);
