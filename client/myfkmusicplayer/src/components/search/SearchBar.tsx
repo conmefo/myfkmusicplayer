@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { clearSearch, setSearchQuery, setTypingFinished } from "../../store/searchSlice";
+import { clearSearch, setSearchQuery, setTypingFinished, setDropdownTracks, type track } from "../../store/searchSlice";
 import { apiFetch } from "../../services/api";
 
 export default function SearchBar() {
@@ -16,9 +16,11 @@ export default function SearchBar() {
         const debounce = setTimeout(() => {
             dispatch(setSearchQuery(value));
             dispatch(setTypingFinished());
-            // apiFetch(`/search?q=${encodeURIComponent(value)}`).then(response => {
-            //     console.log(response);
-            // });
+            apiFetch(`/api/search?q=${encodeURIComponent(value)}`).then(response => {
+                console.log("Search response:", response);
+                dispatch(setDropdownTracks(response));
+                
+            });
         }, 1000);
 
         return () => clearTimeout(debounce);

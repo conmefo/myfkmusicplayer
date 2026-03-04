@@ -12,6 +12,7 @@ type SearchService struct {
 }
 
 type apiTrack struct {
+	Id     int    `json:"id"`
 	Title  string `json:"title"`
 	Artist struct {
 		Name string `json:"name"`
@@ -51,6 +52,7 @@ func (s *SearchService) Search(query string) ([]model.Track, error) {
 	var tracks []model.Track
 	for _, t := range wrapper.Data {
 		tracks = append(tracks, model.Track{
+			Id:     t.Id,
 			Title:  t.Title,
 			Artist: t.Artist.Name,
 			Image:  t.Album.Cover,

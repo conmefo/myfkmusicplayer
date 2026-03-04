@@ -1,15 +1,24 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
+export interface track {
+    id: number;
+    title: string;
+    artist: string;
+    image: string;
+}
+
 export interface SearchState {
     query: string;
     isTyping: boolean;
     showDropdown: boolean;
+    tracks: track[];
 }
 
 const initialState: SearchState = {
     query: "",
     isTyping: false,
     showDropdown: false,
+    tracks: [],
 };
 
 export const searchSlice = createSlice({
@@ -29,10 +38,15 @@ export const searchSlice = createSlice({
             state.query = "";
             state.isTyping = false;
             state.showDropdown = false;
+            state.tracks = [];
+        },
+        setDropdownTracks(state: SearchState, action: PayloadAction<track[]>) {
+            console.log("Setting dropdown tracks:", action.payload);
+            state.tracks = action.payload;
         }
     }
 });
 
-export const { setSearchQuery, setTypingFinished, clearSearch } = searchSlice.actions;
+export const { setSearchQuery, setTypingFinished, clearSearch, setDropdownTracks } = searchSlice.actions;
 
 export default searchSlice.reducer;

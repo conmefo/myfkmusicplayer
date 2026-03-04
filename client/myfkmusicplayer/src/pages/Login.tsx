@@ -22,7 +22,7 @@ function Login() {
             })
             .catch((error) => {
                 console.error("Error during login:", error);
-                alert("An error occurred. Please try again.");
+                alert("An error occurred");
             });
     }
 
@@ -34,7 +34,6 @@ function Login() {
                 </h1>
 
                 <input
-                    //   type="text"
                     placeholder="Username"
                     className="w-full p-2 mb-3 border rounded"
                     value={email}
@@ -42,7 +41,6 @@ function Login() {
                 />
 
                 <input
-                    //  type="password"
                     placeholder="Password"
                     className="w-full p-2 mb-4 border rounded"
                     value={password}
