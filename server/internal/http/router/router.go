@@ -42,6 +42,7 @@ func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.Search
 	api.Use(middleware.AuthMiddleware([]byte(secretKey)))
 	{
 		api.GET("/search", searchHandler.SearchTracks)
+		api.GET("/download", searchHandler.DownloadTrack)
 	}
 
 	return r

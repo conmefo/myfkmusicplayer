@@ -21,3 +21,25 @@ export async function apiFetch(
 
     return res.json();
 }
+
+export async function apiDownload(
+    endpoint: string,
+): Promise<Blob> {
+    let res = await fetch(`http://localhost:8080${endpoint}`, {
+        credentials: "include",
+    });
+
+    if (res.status === 401) {
+        if (await refreshToken()) {
+            res = await fetch(`http://localhost:8080${endpoint}`, {
+                credentials: "include",
+            });
+        }
+    }
+
+    if (!res.ok) {
+        throw new Error('Download failed');
+    }
+
+    return res.blob();
+}

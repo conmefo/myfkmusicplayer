@@ -22,3 +22,28 @@ func (h *SearchHandler) SearchTracks(c *gin.Context) {
 	}
 	c.JSON(200, tracks)
 }
+
+func (h *SearchHandler) DownloadTrack(c *gin.Context) {
+	id := c.Query("id")
+	title := c.Query("title")
+	artist := c.Query("artist")
+
+	if id == "" {
+		c.JSON(400, gin.H{"error": "id is required"})
+		return
+	}
+
+	filePath, err := h.SearchService.Download(id)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	fileName := title
+	if artist != "" {
+		fileName += " - " + artist
+	}
+	fileName += ".mp3"
+
+	c.FileAttachment(filePath, fileName)
+}

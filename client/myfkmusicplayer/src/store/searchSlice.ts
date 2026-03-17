@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export interface track {
-    id: number;
+    id: string;
     title: string;
     artist: string;
     image: string;
