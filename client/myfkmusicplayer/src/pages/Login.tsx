@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { apiFetch } from "../services/api";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Music2 } from "lucide-react";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    function submitForm() {
-        console.log("Form submitted");
+    async function submitForm() {
         apiFetch("/users/login", {
             method: "POST",
             headers: {
@@ -27,31 +29,38 @@ function Login() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="w-full max-w-sm bg-white p-6 rounded-lg shadow">
-                <h1 className="text-2xl font-bold text-center mb-6">
-                    Login
-                </h1>
+        <div className="flex min-h-screen items-center justify-center bg-background px-4">
+            <div className="w-full max-w-md rounded-2xl border border-border/60 bg-card/70 p-6 shadow-xl backdrop-blur sm:p-8">
+                <div className="mb-6 flex items-center justify-center gap-2">
+                    <Music2 className="size-5 text-primary" />
+                    <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+                </div>
 
-                <input
-                    placeholder="Username"
-                    className="w-full p-2 mb-3 border rounded"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+                <div className="space-y-3">
+                    <Input
+                        placeholder="Email"
+                        value={email}
+                        autoComplete="email"
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
 
-                <input
-                    placeholder="Password"
-                    className="w-full p-2 mb-4 border rounded"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
+                    <Input
+                        type="password"
+                        placeholder="Password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                submitForm();
+                            }
+                        }}
+                    />
 
-                <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-                    onClick={submitForm}>
-                    Login
-                </button>
-
+                    <Button className="mt-2 w-full" onClick={submitForm}>
+                        Sign in
+                    </Button>
+                </div>
             </div>
         </div>
     )

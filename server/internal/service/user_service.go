@@ -48,6 +48,10 @@ func (s *UserService) RegisterUser(email, passwordHash string) (*model.User, err
 	}, nil
 }
 
+func (s *UserService) GetUserByEmail(email string) (*model.User, error) {
+	return s.userRepo.GetUserByEmail(email)
+}
+
 func (s *UserService) LoginUser(email, password string) (*model.User, http.Cookie, http.Cookie, error) {
 	user, err := s.userRepo.GetUserByEmail(email)
 	if err != nil {

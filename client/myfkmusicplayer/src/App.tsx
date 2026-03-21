@@ -1,4 +1,3 @@
-import './App.css'
 import Login from './pages/Login'
 import MainPage from './pages/MainPage'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -7,7 +6,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <main className='main-content'>
+      <main>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<MainPage />} />

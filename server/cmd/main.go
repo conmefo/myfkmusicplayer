@@ -19,8 +19,12 @@ func main() {
 
 	searchService := service.NewSearchService()
 	searchHandler := handler.NewSearchHandler(searchService)
+
+	playlistRepo := repo.NewPlaylistRepository(db)
+	playlistService := service.NewPlaylistService(playlistRepo)
+	playlistHandler := handler.NewPlaylistHandler(playlistService, userService)
 	
-	r := router.SetupRouter(userHandler, searchHandler)
+	r := router.SetupRouter(userHandler, searchHandler, playlistHandler)
 
 	godotenv.Load()
 	port := os.Getenv("PORT")

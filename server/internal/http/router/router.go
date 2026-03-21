@@ -12,11 +12,12 @@ import (
 )
 
 type Router struct {
-	userHandler   *handler.UserHandler
-	searchHandler *handler.SearchHandler
+	userHandler     *handler.UserHandler
+	searchHandler   *handler.SearchHandler
+	playlistHandler *handler.PlaylistHandler
 }
 
-func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.SearchHandler) *gin.Engine {
+func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.SearchHandler, playlistHandler *handler.PlaylistHandler) *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
@@ -43,6 +44,14 @@ func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.Search
 	{
 		api.GET("/search", searchHandler.SearchTracks)
 		api.GET("/download", searchHandler.DownloadTrack)
+
+		api.POST("/playlists", playlistHandler.CreatePlaylist)
+		api.GET("/playlists", playlistHandler.GetUserPlaylists)
+		api.DELETE("/playlists/:id", playlistHandler.DeletePlaylist)
+		api.POST("/playlists/:id/tracks", playlistHandler.AddTrackToPlaylist)
+		api.GET("/playlists/:id/tracks", playlistHandler.GetPlaylistTracks)
+		api.DELETE("/playlists/:id/tracks/:trackId", playlistHandler.RemoveTrackFromPlaylist)
+		api.POST("/playlists/:id/reorder", playlistHandler.ReorderTracks)
 	}
 
 	return r
