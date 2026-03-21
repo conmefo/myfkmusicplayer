@@ -150,6 +150,12 @@ export const removeTrackFromPlaylistApi = createAsyncThunk(
     }
 );
 
+export const removePlaylistApi = async (playlistId: string) => {
+    await apiFetch(`/api/playlists/${playlistId}`, {
+        method: "DELETE",
+    });
+}
+
 export const reorderTracksApi = createAsyncThunk(
     "playlist/reorderTracksApi",
     async ({ playlistId, trackIds }: { playlistId: string; trackIds: string[] }) => {
@@ -236,16 +242,16 @@ export const playlistSlice = createSlice({
             }
         },
         deletePlaylist(state: PlaylistState, action: PayloadAction<string>) {
-            if (action.payload !== "liked-songs") {
-                state.playlists = state.playlists.filter(p => p.id !== action.payload);
-                if (state.selectedPlaylist?.id === action.payload) {
-                    state.selectedPlaylist = null;
-                }
-                if (state.currentPlayingPlaylistId === action.payload) {
-                    state.currentPlayingPlaylistId = null;
-                    state.currentPlayingTrackId = null;
-                }
+            state.playlists = state.playlists.filter(p => p.id !== action.payload);
+            removePlaylistApi(action.payload);
+            if (state.selectedPlaylist?.id === action.payload) {
+                state.selectedPlaylist = null;
             }
+            if (state.currentPlayingPlaylistId === action.payload) {
+                state.currentPlayingPlaylistId = null;
+                state.currentPlayingTrackId = null;
+            }
+
         },
         setSelectedPlaylist(state: PlaylistState, action: PayloadAction<Playlist | null>) {
             if (!action.payload) {

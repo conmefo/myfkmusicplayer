@@ -39,9 +39,9 @@ export default function Library() {
     }
 
     function handleDelete(id: string) {
-        if (window.confirm("Are you sure you want to delete this playlist?")) {
-            dispatch(deletePlaylist(id));
-        }
+        dispatch(deletePlaylist(id));
+        console.log("Deleted playlist with id:", id);
+
     }
 
     if (selectedPlaylist) {

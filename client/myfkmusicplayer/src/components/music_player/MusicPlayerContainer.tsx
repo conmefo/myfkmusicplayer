@@ -1,5 +1,5 @@
 import { db } from "@/services/db";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Playlist, track } from "@/store/playlistSlice";
 import { Button } from "@/components/ui/button";
 import { SkipBack, SkipForward } from "lucide-react";
@@ -17,6 +17,7 @@ export default function MusicPlayerContainer({ playlist, currentTrack, onNext, o
     const [songUrl, setSongUrl] = useState<string | null>(null);
     const [isLoadingTrack, setIsLoadingTrack] = useState(false);
     const [loadError, setLoadError] = useState<string | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
         let activeUrl: string | null = null;
@@ -91,6 +92,17 @@ export default function MusicPlayerContainer({ playlist, currentTrack, onNext, o
         };
     }, [currentTrack]);
 
+    useEffect(() => {
+        if (!songUrl || isLoadingTrack) return;
+
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        audio.play().catch((error) => {
+            console.debug("Autoplay blocked or delayed:", error);
+        });
+    }, [songUrl, isLoadingTrack]);
+
     const canNavigate = !!playlist && playlist.tracks.length > 1;
 
     return (
@@ -134,9 +146,15 @@ export default function MusicPlayerContainer({ playlist, currentTrack, onNext, o
             </div>
 
             <audio
+                ref={audioRef}
                 src={songUrl ?? undefined}
                 controls
-                onEnded={onNext}
+                autoPlay
+                onEnded={() => {
+                    if (canNavigate) {
+                        onNext();
+                    }
+                }}
                 aria-busy={isLoadingTrack}
                 className="w-full"
             >
