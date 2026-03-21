@@ -3,11 +3,11 @@ import SearchBar from "../components/search/SearchBar";
 import SearchDropdown from "../components/search/SearchDropdown";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store/store";
-import { refreshToken } from "../services/authService";
+import { logout, refreshToken } from "../services/authService";
 import Library from "../components/library/Library";
 import { fetchPlaylistsWithTracks, playNextTrack, playPreviousTrack } from "../store/playlistSlice";
 import { Button } from "@/components/ui/button";
-import { Music, Settings } from "lucide-react";
+import { LogOut } from "lucide-react";
 import MusicPlayerContainer from "../components/music_player/MusicPlayerContainer";
 
 export default function MainPage() {
@@ -31,10 +31,24 @@ export default function MainPage() {
         });
     }, [dispatch]);
 
+    async function handleLogout() {
+        try {
+            await logout();
+        } finally {
+            window.location.href = "/login";
+        }
+    }
+
     return (
         <div className="min-h-screen bg-background text-foreground">
             <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 pb-12 pt-8 sm:px-6 lg:px-8">
                 <header className="rounded-xl z-20 border border-border/60 bg-card/60 p-4 backdrop-blur sm:p-5">
+                    <div className="mb-3 flex justify-end">
+                        <Button variant="outline" size="sm" onClick={handleLogout}>
+                            <LogOut className="size-4" />
+                            Logout
+                        </Button>
+                    </div>
                     <div className="relative">
                         <SearchBar />
                         {showDropdown && <SearchDropdown />}

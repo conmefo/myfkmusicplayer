@@ -74,3 +74,11 @@ func (h *UserHandler) RefreshToken(c *gin.Context) {
 	c.SetCookie(accessCookie.Name, accessCookie.Value, accessCookie.MaxAge, accessCookie.Path, accessCookie.Domain, accessCookie.Secure, accessCookie.HttpOnly)
 	c.JSON(200, gin.H{"message": "Token refreshed"})
 }
+
+func (h *UserHandler) LogoutUser(c *gin.Context) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("access_token", "", -1, "/", "", false, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+	c.SetCookie("user_email", "", -1, "/", "", false, false)
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out"})
+}

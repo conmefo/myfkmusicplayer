@@ -2,7 +2,7 @@ import { db } from "@/services/db";
 import { useEffect, useRef, useState } from "react";
 import type { Playlist, track } from "@/store/playlistSlice";
 import { Button } from "@/components/ui/button";
-import { SkipBack, SkipForward } from "lucide-react";
+import { Repeat, SkipBack, SkipForward } from "lucide-react";
 import { apiDownload } from "@/services/api";
 import { storeSong } from "@/services/db";
 
@@ -17,6 +17,7 @@ export default function MusicPlayerContainer({ playlist, currentTrack, onNext, o
     const [songUrl, setSongUrl] = useState<string | null>(null);
     const [isLoadingTrack, setIsLoadingTrack] = useState(false);
     const [loadError, setLoadError] = useState<string | null>(null);
+    const [repeatOne, setRepeatOne] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
@@ -125,6 +126,16 @@ export default function MusicPlayerContainer({ playlist, currentTrack, onNext, o
 
                 <div className="flex items-center gap-2">
                     <Button
+                        variant={repeatOne ? "default" : "outline"}
+                        size="icon"
+                        onClick={() => setRepeatOne(prev => !prev)}
+                        title={repeatOne ? "Disable replay current track" : "Replay current track"}
+                        aria-pressed={repeatOne}
+                        disabled={!currentTrack}
+                    >
+                        <Repeat className="size-4" />
+                    </Button>
+                    <Button
                         variant="outline"
                         size="icon"
                         onClick={onPrevious}
@@ -150,8 +161,9 @@ export default function MusicPlayerContainer({ playlist, currentTrack, onNext, o
                 src={songUrl ?? undefined}
                 controls
                 autoPlay
+                loop={repeatOne}
                 onEnded={() => {
-                    if (canNavigate) {
+                    if (!repeatOne && canNavigate) {
                         onNext();
                     }
                 }}
