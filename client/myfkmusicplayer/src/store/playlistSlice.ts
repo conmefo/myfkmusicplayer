@@ -7,6 +7,33 @@ function syncSelected(state: PlaylistState, playlist: Playlist) {
     }
 }
 
+function syncCurrentPlaying(state: PlaylistState) {
+    if (!state.currentPlayingPlaylistId) {
+        state.currentPlayingTrackId = null;
+        return;
+    }
+
+    const playlist = state.playlists.find(p => p.id === state.currentPlayingPlaylistId);
+    if (!playlist) {
+        state.currentPlayingPlaylistId = null;
+        state.currentPlayingTrackId = null;
+        return;
+    }
+
+    if (!playlist.tracks.length) {
+        state.currentPlayingTrackId = null;
+        return;
+    }
+
+    const hasCurrentTrack = state.currentPlayingTrackId
+        ? playlist.tracks.some(t => t.id === state.currentPlayingTrackId)
+        : false;
+
+    if (!hasCurrentTrack) {
+        state.currentPlayingTrackId = playlist.tracks[0].id;
+    }
+}
+
 
 export interface track {
     id: string;
@@ -24,12 +51,16 @@ export interface Playlist {
 export interface PlaylistState {
     playlists: Playlist[];
     selectedPlaylist: Playlist | null;
+    currentPlayingPlaylistId: string | null;
+    currentPlayingTrackId: string | null;
 }
 
 
 export const initialPlaylistState: PlaylistState = {
     playlists: [],
     selectedPlaylist: null,
+    currentPlayingPlaylistId: null,
+    currentPlayingTrackId: null,
 };
 
 export const fetchPlaylists = createAsyncThunk(
@@ -139,7 +170,6 @@ export const playlistSlice = createSlice({
     initialState: initialPlaylistState,
     reducers: {
         setPlaylists(state: PlaylistState, action: PayloadAction<Playlist[]>) {
-            // Ensure liked-songs is always present
             const fetchedPlaylists = action.payload;
             const hasLikedSongs = fetchedPlaylists.some(p => p.id === "liked-songs");
             if (!hasLikedSongs) {
@@ -151,6 +181,7 @@ export const playlistSlice = createSlice({
                 const matched = state.playlists.find(p => p.id === state.selectedPlaylist?.id);
                 state.selectedPlaylist = matched ?? state.selectedPlaylist;
             }
+            syncCurrentPlaying(state);
         },
         addPlaylist(state: PlaylistState, action: PayloadAction<Playlist>) {
             state.playlists.push(action.payload);
@@ -170,6 +201,7 @@ export const playlistSlice = createSlice({
                 tracks.splice(action.payload.newIndex, 0, movedTrack);
                 playlist.tracks = tracks;
                 syncSelected(state, playlist);
+                syncCurrentPlaying(state);
             }
         },
         addTrackToPlaylist(state: PlaylistState, action: PayloadAction<{ playlistId: string; track: track }>) {
@@ -186,8 +218,21 @@ export const playlistSlice = createSlice({
             const { playlistId, trackId } = action.payload;
             const playlist = state.playlists.find(p => p.id === playlistId);
             if (playlist) {
+                const removedIndex = playlist.tracks.findIndex(t => t.id === trackId);
                 playlist.tracks = playlist.tracks.filter(t => t.id !== trackId);
                 syncSelected(state, playlist);
+
+                if (
+                    state.currentPlayingPlaylistId === playlistId &&
+                    state.currentPlayingTrackId === trackId
+                ) {
+                    if (playlist.tracks.length === 0) {
+                        state.currentPlayingTrackId = null;
+                    } else {
+                        const nextIndex = Math.min(removedIndex, playlist.tracks.length - 1);
+                        state.currentPlayingTrackId = playlist.tracks[nextIndex].id;
+                    }
+                }
             }
         },
         deletePlaylist(state: PlaylistState, action: PayloadAction<string>) {
@@ -195,6 +240,10 @@ export const playlistSlice = createSlice({
                 state.playlists = state.playlists.filter(p => p.id !== action.payload);
                 if (state.selectedPlaylist?.id === action.payload) {
                     state.selectedPlaylist = null;
+                }
+                if (state.currentPlayingPlaylistId === action.payload) {
+                    state.currentPlayingPlaylistId = null;
+                    state.currentPlayingTrackId = null;
                 }
             }
         },
@@ -206,6 +255,65 @@ export const playlistSlice = createSlice({
             const id = action.payload.id;
             const playlist = state.playlists.find(p => p.id === id);
             state.selectedPlaylist = playlist ?? action.payload;
+        },
+        setCurrentPlayingTrack(state: PlaylistState, action: PayloadAction<{ playlistId: string; trackId: string } | null>) {
+            if (!action.payload) {
+                state.currentPlayingPlaylistId = null;
+                state.currentPlayingTrackId = null;
+                return;
+            }
+
+            const { playlistId, trackId } = action.payload;
+            const playlist = state.playlists.find(p => p.id === playlistId);
+            if (!playlist) {
+                return;
+            }
+
+            const trackExists = playlist.tracks.some(t => t.id === trackId);
+            if (!trackExists) {
+                return;
+            }
+
+            state.currentPlayingPlaylistId = playlistId;
+            state.currentPlayingTrackId = trackId;
+        },
+        playNextTrack(state: PlaylistState) {
+            if (!state.currentPlayingPlaylistId || !state.currentPlayingTrackId) {
+                return;
+            }
+
+            const playlist = state.playlists.find(p => p.id === state.currentPlayingPlaylistId);
+            if (!playlist || !playlist.tracks.length) {
+                return;
+            }
+
+            const currentIndex = playlist.tracks.findIndex(t => t.id === state.currentPlayingTrackId);
+            if (currentIndex === -1) {
+                state.currentPlayingTrackId = playlist.tracks[0].id;
+                return;
+            }
+
+            const nextIndex = (currentIndex + 1) % playlist.tracks.length;
+            state.currentPlayingTrackId = playlist.tracks[nextIndex].id;
+        },
+        playPreviousTrack(state: PlaylistState) {
+            if (!state.currentPlayingPlaylistId || !state.currentPlayingTrackId) {
+                return;
+            }
+
+            const playlist = state.playlists.find(p => p.id === state.currentPlayingPlaylistId);
+            if (!playlist || !playlist.tracks.length) {
+                return;
+            }
+
+            const currentIndex = playlist.tracks.findIndex(t => t.id === state.currentPlayingTrackId);
+            if (currentIndex === -1) {
+                state.currentPlayingTrackId = playlist.tracks[0].id;
+                return;
+            }
+
+            const previousIndex = (currentIndex - 1 + playlist.tracks.length) % playlist.tracks.length;
+            state.currentPlayingTrackId = playlist.tracks[previousIndex].id;
         }
     },
     extraReducers: (builder) => {
@@ -222,6 +330,7 @@ export const playlistSlice = createSlice({
                 const matched = state.playlists.find(p => p.id === state.selectedPlaylist?.id);
                 state.selectedPlaylist = matched ?? state.selectedPlaylist;
             }
+            syncCurrentPlaying(state);
         });
         builder.addCase(fetchPlaylistsWithTracks.fulfilled, (state, action) => {
             const fetchedPlaylists = action.payload;
@@ -235,6 +344,7 @@ export const playlistSlice = createSlice({
                 const matched = state.playlists.find(p => p.id === state.selectedPlaylist?.id);
                 state.selectedPlaylist = matched ?? state.selectedPlaylist;
             }
+            syncCurrentPlaying(state);
         });
         builder.addCase(createPlaylist.fulfilled, (state, action) => {
             state.playlists.push(action.payload);
@@ -266,11 +376,24 @@ export const playlistSlice = createSlice({
                 });
                 playlist.tracks = reordered;
                 syncSelected(state, playlist);
+                syncCurrentPlaying(state);
             }
         });
     }
 });
 
-export const { setPlaylists, addPlaylist, renamePlaylist, reorderTracks, addTrackToPlaylist, removeTrackFromPlaylist, deletePlaylist, setSelectedPlaylist } = playlistSlice.actions;
+export const {
+    setPlaylists,
+    addPlaylist,
+    renamePlaylist,
+    reorderTracks,
+    addTrackToPlaylist,
+    removeTrackFromPlaylist,
+    deletePlaylist,
+    setSelectedPlaylist,
+    setCurrentPlayingTrack,
+    playNextTrack,
+    playPreviousTrack,
+} = playlistSlice.actions;
 
 export default playlistSlice.reducer;

@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
-import { reorderTracks, reorderTracksApi } from "../../store/playlistSlice";
+import { reorderTracks, reorderTracksApi, setCurrentPlayingTrack } from "../../store/playlistSlice";
 import Track from "./Track";
 import {
     DndContext,
@@ -30,6 +30,13 @@ export default function PlaylistView() {
     if (!selectedPlaylist) return null;
 
     const tracks = selectedPlaylist.tracks;
+
+    function handleTrackPlay(trackId: string) {
+        dispatch(setCurrentPlayingTrack({
+            playlistId: selectedPlaylist.id,
+            trackId,
+        }));
+    }
 
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event;
@@ -84,6 +91,7 @@ export default function PlaylistView() {
                             title={track.title}
                             artist={track.artist}
                             imageUrl={track.image}
+                            onPlay={handleTrackPlay}
                         />
                     ))}
                 </SortableContext>

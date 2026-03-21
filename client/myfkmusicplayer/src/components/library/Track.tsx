@@ -6,7 +6,7 @@ import { removeTrackFromPlaylistApi } from '../../store/playlistSlice';
 import type { AppDispatch, RootState } from '../../store/store';
 import { Button } from '@/components/ui/button';
 
-export default function Track({ id, title, artist, imageUrl }: { id: string; title: string; artist: string, imageUrl?: string }) {
+export default function Track({ id, title, artist, imageUrl, onPlay }: { id: string; title: string; artist: string, imageUrl?: string; onPlay?: (trackId: string) => void }) {
     const dispatch = useDispatch<AppDispatch>();
     const selectedPlaylist = useSelector((state: RootState) => state.playlist.selectedPlaylist);
 
@@ -39,6 +39,7 @@ export default function Track({ id, title, artist, imageUrl }: { id: string; tit
         <div
             ref={setNodeRef}
             style={style}
+            onClick={() => onPlay?.(id)}
             className={`group flex w-full items-center rounded-xl border border-transparent p-2 transition-colors ${isDragging ? "bg-accent/70 shadow-md opacity-90" : "hover:bg-accent/35"}`}
         >
             <div

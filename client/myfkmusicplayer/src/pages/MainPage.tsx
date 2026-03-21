@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store/store";
 import { refreshToken } from "../services/authService";
 import Library from "../components/library/Library";
-import { fetchPlaylistsWithTracks } from "../store/playlistSlice";
+import { fetchPlaylistsWithTracks, playNextTrack, playPreviousTrack } from "../store/playlistSlice";
 import { Button } from "@/components/ui/button";
 import { Music, Settings } from "lucide-react";
 import MusicPlayerContainer from "../components/music_player/MusicPlayerContainer";
@@ -13,6 +13,12 @@ import MusicPlayerContainer from "../components/music_player/MusicPlayerContaine
 export default function MainPage() {
     const dispatch = useDispatch<AppDispatch>();
     const showDropdown = useSelector((state: RootState) => state.search.showDropdown);
+    const playlists = useSelector((state: RootState) => state.playlist.playlists);
+    const currentPlayingPlaylistId = useSelector((state: RootState) => state.playlist.currentPlayingPlaylistId);
+    const currentPlayingTrackId = useSelector((state: RootState) => state.playlist.currentPlayingTrackId);
+
+    const currentPlayingPlaylist = playlists.find(p => p.id === currentPlayingPlaylistId) ?? null;
+    const currentPlayingTrack = currentPlayingPlaylist?.tracks.find(t => t.id === currentPlayingTrackId) ?? null;
 
     useEffect(() => {
         refreshToken().then(success => {
@@ -40,7 +46,12 @@ export default function MainPage() {
                 </div>
 
                 <div className="fixed bottom-0 left-0 right-0 z-30 mx-auto w-full max-w-4xl rounded-t-2xl border border-border/70 bg-card/80 p-4 shadow-lg backdrop-blur sm:p-6">
-                    <MusicPlayerContainer progress={50} />
+                    <MusicPlayerContainer
+                        playlist={currentPlayingPlaylist}
+                        currentTrack={currentPlayingTrack}
+                        onNext={() => dispatch(playNextTrack())}
+                        onPrevious={() => dispatch(playPreviousTrack())}
+                    />
                 </div>
             </div>
         </div>
