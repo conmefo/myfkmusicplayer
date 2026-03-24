@@ -16,14 +16,18 @@ RUN apk add --no-cache \
     ca-certificates \
     python3 \
     py3-pip \
-    ffmpeg \
-    && pip install --no-cache-dir yt-dlp
+    ffmpeg
+
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip install --no-cache-dir yt-dlp
+
+ENV PATH="/opt/venv/bin:$PATH"
 
 COPY --from=builder /build/server .
 
 RUN mkdir -p storage
 RUN adduser -D appuser
-RUN chown -R appuser:appuser storage
+RUN chown -R appuser:appuser /app/storage
 USER appuser
 
 EXPOSE 8080
