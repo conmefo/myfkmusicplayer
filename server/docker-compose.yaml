@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: music_server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server/local_storage:/app/storage
+    env_file:
+      - ./server/.env
+    restart: unless-stopped
+  client:
+    build:
+      context: ./client/myfkmusicplayer
+      dockerfile: Dockerfile
+    container_name: music_client
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    restart: unless-stopped

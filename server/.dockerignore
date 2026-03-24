@@ -1,0 +1,21 @@
+# Go workspace and environment
+vendor/
+.env
+
+# Build outputs
+server
+cmd.exe
+*.exe
+*.test
+*.out
+
+# Storage
+storage/
+local_storage/
+
+# Version control
+.git/
+.gitignore
+
+# OS specific
+.DS_Store
