@@ -13,7 +13,7 @@ async function parseAuthResponse(res: Response): Promise<AuthResponse> {
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
-    const res = await fetch("http://localhost:8080/users/login", {
+    const res = await fetch("/api/users/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
 }
 
 export async function register(email: string, password: string): Promise<AuthResponse> {
-    const res = await fetch("http://localhost:8080/users/register", {
+    const res = await fetch("/api/users/register", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -39,7 +39,7 @@ export async function register(email: string, password: string): Promise<AuthRes
 }
 
 export async function logout(): Promise<boolean> {
-    const res = await fetch("http://localhost:8080/users/logout", {
+    const res = await fetch("/api/users/logout", {
         method: "POST",
         credentials: "include",
     });
@@ -48,7 +48,7 @@ export async function logout(): Promise<boolean> {
 }
 
 export async function refreshToken(): Promise<boolean> {
-    const res = await fetch("http://localhost:8080/users/refresh", {
+    const res = await fetch("/api/users/refresh", {
         method: "POST",
         credentials: "include"
     });

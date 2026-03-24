@@ -4,7 +4,7 @@ export async function apiFetch(
     endpoint: string,
     options: RequestInit = {}
 ): Promise<any> {
-    const res = await fetch(`http://localhost:8080${endpoint}`, {
+    const res = await fetch(`/api${endpoint}`, {
         ...options,
         credentials: "include",
     });
@@ -12,7 +12,7 @@ export async function apiFetch(
     if (res.status != 401) return res.json();
 
     if (await refreshToken()) {
-        const retryRes = await fetch(`http://localhost:8080${endpoint}`, {
+        const retryRes = await fetch(`/api${endpoint}`, {
             ...options,
             credentials: "include",
         });
@@ -25,13 +25,13 @@ export async function apiFetch(
 export async function apiDownload(
     endpoint: string,
 ): Promise<Blob> {
-    let res = await fetch(`http://localhost:8080${endpoint}`, {
+    let res = await fetch(`/api${endpoint}`, {
         credentials: "include",
     });
 
     if (res.status === 401) {
         if (await refreshToken()) {
-            res = await fetch(`http://localhost:8080${endpoint}`, {
+            res = await fetch(`/api${endpoint}`, {
                 credentials: "include",
             });
         }
