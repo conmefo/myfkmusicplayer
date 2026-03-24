@@ -22,8 +22,8 @@ RUN apk add --no-cache \
 COPY --from=builder /build/server .
 
 RUN mkdir -p storage
-
 RUN adduser -D appuser
+RUN chown -R appuser:appuser storage
 USER appuser
 
 EXPOSE 8080
