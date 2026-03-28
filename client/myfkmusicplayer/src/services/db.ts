@@ -1,7 +1,7 @@
 import Dexie, { type Table } from "dexie";
 
 export interface Song {
-    id: string;
+    id?: number;
     title: string;
     artist: string;
     blob: Blob;
@@ -17,15 +17,14 @@ export class MusicPlayerDB extends Dexie {
     }
 }
 
-export const storeSong = async (blob: Blob, title: string, artistName: string, albumName: string) => {
+export const storeSong = async (blob: Blob, title: string, artistName: string, _albumName: string) => {
     try {
         await db.songs.add({
-            id: crypto.randomUUID(),
             title: title,
             artist: artistName,
             blob: blob
         });
-        console.log("Song added successfully!");
+        console.log("Song added successfullyy!");
     } catch (error) {
         console.error("Failed to add song:", error);
     }
