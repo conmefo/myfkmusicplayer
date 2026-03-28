@@ -13,6 +13,7 @@ import (
 
 func main() {
 	db := database.InitPostgresDB()
+	database.RunMigrations(db)
 	userRepo := repo.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)

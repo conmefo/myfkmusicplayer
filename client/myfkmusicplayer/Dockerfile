@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder 
+FROM node:20-alpine AS builder
 WORKDIR /build
 
 COPY package*.json ./
@@ -7,13 +7,9 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:20-alpine
-WORKDIR /app
+FROM nginx:stable-alpine
 
-RUN npm install -g serve
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /build/dist /usr/share/nginx/html
 
-COPY --from=builder /build/dist ./dist
-
-EXPOSE 3000
-
-CMD ["serve", "-s", "dist", "-l", "3000"]
+EXPOSE 80

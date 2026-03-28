@@ -20,7 +20,11 @@ type Router struct {
 func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.SearchHandler, playlistHandler *handler.PlaylistHandler) *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins: []string{
+			"http://localhost:5173",
+			"http://localhost:3000",
+			"http://34.21.161.107:3000",
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -38,8 +42,6 @@ func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.Search
 	godotenv.Load()
 
 	secretKey := os.Getenv("JWT_SECRET")
-
-	println("Secret Key:", secretKey)
 
 	api.Use(middleware.AuthMiddleware([]byte(secretKey)))
 	{
