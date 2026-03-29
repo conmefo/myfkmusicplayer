@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import SearchBar from "../components/search/SearchBar";
-import SearchDropdown from "../components/search/SearchDropdown";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store/store";
 import { logout, refreshToken } from "../services/authService";
@@ -12,7 +11,6 @@ import MusicPlayerContainer from "../components/music_player/MusicPlayerContaine
 
 export default function MainPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const showDropdown = useSelector((state: RootState) => state.search.showDropdown);
     const playlists = useSelector((state: RootState) => state.playlist.playlists);
     const currentPlayingPlaylistId = useSelector((state: RootState) => state.playlist.currentPlayingPlaylistId);
     const currentPlayingTrackId = useSelector((state: RootState) => state.playlist.currentPlayingTrackId);
@@ -41,7 +39,7 @@ export default function MainPage() {
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 pb-12 pt-8 sm:px-6 lg:px-8">
+            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 pb-44 pt-8 sm:px-6 sm:pb-52 lg:px-8">
                 <header className="rounded-xl z-20 border border-border/60 bg-card/60 p-4 backdrop-blur sm:p-5">
                     <div className="mb-3 flex justify-end">
                         <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -49,10 +47,7 @@ export default function MainPage() {
                             Logout
                         </Button>
                     </div>
-                    <div className="relative">
-                        <SearchBar />
-                        {showDropdown && <SearchDropdown />}
-                    </div>
+                    <SearchBar />
                 </header>
 
                 <div className="relative">

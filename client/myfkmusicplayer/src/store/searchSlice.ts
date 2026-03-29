@@ -12,13 +12,23 @@ export interface SearchState {
     isTyping: boolean;
     showDropdown: boolean;
     tracks: track[];
+    autoDownloadOnAdd: boolean;
 }
+
+const getInitialAutoDownload = () => {
+    if (typeof window === "undefined") {
+        return false;
+    }
+
+    return window.localStorage.getItem("auto-download-on-add") === "true";
+};
 
 const initialState: SearchState = {
     query: "",
     isTyping: false,
     showDropdown: false,
     tracks: [],
+    autoDownloadOnAdd: getInitialAutoDownload(),
 };
 
 export const searchSlice = createSlice({
@@ -34,6 +44,14 @@ export const searchSlice = createSlice({
             state.isTyping = false;
             state.showDropdown = true;
         },
+        openDropdown(state: SearchState) {
+            if (state.query.trim() !== "") {
+                state.showDropdown = true;
+            }
+        },
+        closeDropdown(state: SearchState) {
+            state.showDropdown = false;
+        },
         clearSearch(state: SearchState) {
             state.query = "";
             state.isTyping = false;
@@ -43,10 +61,16 @@ export const searchSlice = createSlice({
         setDropdownTracks(state: SearchState, action: PayloadAction<track[]>) {
             console.log("Setting dropdown tracks:", action.payload);
             state.tracks = action.payload;
+        },
+        setAutoDownloadOnAdd(state: SearchState, action: PayloadAction<boolean>) {
+            state.autoDownloadOnAdd = action.payload;
+            if (typeof window !== "undefined") {
+                window.localStorage.setItem("auto-download-on-add", String(action.payload));
+            }
         }
     }
 });
 
-export const { setSearchQuery, setTypingFinished, clearSearch, setDropdownTracks } = searchSlice.actions;
+export const { setSearchQuery, setTypingFinished, openDropdown, closeDropdown, clearSearch, setDropdownTracks, setAutoDownloadOnAdd } = searchSlice.actions;
 
 export default searchSlice.reducer;
