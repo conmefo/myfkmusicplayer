@@ -32,12 +32,12 @@ func SetupRouter(userHandler *handler.UserHandler, searchHandler *handler.Search
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.POST("/users/register", userHandler.RegisterUser)
-	r.POST("/users/login", userHandler.LoginUser)
-	r.POST("/users/refresh", userHandler.RefreshToken)
-	r.POST("/users/logout", userHandler.LogoutUser)
-
 	api := r.Group("/api")
+
+	api.POST("/users/register", userHandler.RegisterUser)
+	api.POST("/users/login", userHandler.LoginUser)
+	api.POST("/users/refresh", userHandler.RefreshToken)
+	api.POST("/users/logout", userHandler.LogoutUser)
 
 	godotenv.Load()
 

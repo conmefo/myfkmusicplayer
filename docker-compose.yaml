@@ -1,25 +1,44 @@
-version: '3.8'
-
 services:
+  db:
+    image: postgres:16
+    container_name: music_db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dnd
+      POSTGRES_DB: myfkmusicplayer
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
     container_name: music_server
+    depends_on:
+      - db
+    restart: unless-stopped
     ports:
       - "8080:8080"
+    environment:
+      PORT: "8080"
+      DB_URL: "postgres://postgres:dnd@db:5432/myfkmusicplayer?sslmode=disable"
+      JWT_SECRET: "${JWT_SECRET}"
     volumes:
       - ./server/local_storage:/app/storage
-    env_file:
-      - ./server/.env
-    restart: unless-stopped
+
   client:
     build:
       context: ./client/myfkmusicplayer
       dockerfile: Dockerfile
     container_name: music_client
-    ports:
-      - "3000:80"
     depends_on:
       - server
     restart: unless-stopped
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:
